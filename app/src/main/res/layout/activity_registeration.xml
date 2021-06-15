@@ -11,18 +11,38 @@
     android:padding="20dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up your new Journry"
-        android:textSize="18sp"/>
+        android:text="Register"
+        android:gravity="center"
+        android:fontFamily="@font/akronim"
+        android:textColor="#FF5722"
+        android:textSize="40sp"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:src="@drawable/ic_username"
+            android:id="@+id/image_view"
+            android:layout_width="100dp"
+            android:layout_height="100dp"/>
+        <Button
+            android:id="@+id/sele_pic"
+            android:text="select picture"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp">
-
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username"
@@ -31,6 +51,7 @@
             android:hint="Username"
             app:counterEnabled="true"
             app:counterMaxLength="15"
+            app:startIconDrawable="@drawable/ic_username"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -43,6 +64,7 @@
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:startIconDrawable="@drawable/ic_email"
             android:hint="Email"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -57,6 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Phone Number"
+            app:startIconDrawable="@drawable/ic_phone"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -70,6 +93,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            app:startIconDrawable="@drawable/ic_password"
             app:passwordToggleEnabled="true"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -83,7 +107,6 @@
 
     <Button
         android:id="@+id/register"
-        android:onClick="re"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="GO"

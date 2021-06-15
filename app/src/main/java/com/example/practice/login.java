@@ -95,8 +95,8 @@ public class login extends AppCompatActivity {
                         startActivity(new Intent().setClass(getApplicationContext(),UserProfile.class));
                         finish();
                     } else {
-                        Toast.makeText(login.this,"Error!"+task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                        login_pro.setVisibility(View.GONE);
+                            Toast.makeText(login.this,"Error!"+task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                            login_pro.setVisibility(View.GONE);
                     }
                 }
             });

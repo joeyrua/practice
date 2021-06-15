@@ -1,16 +1,16 @@
 package com.example.practice;
 
 public class UserHelperClass {
-    String username ,email,phoneNo, password;
+    String username ,email,phoneNo, password, Image_id;
 
-    public UserHelperClass() {
-    }
 
-    public UserHelperClass( String username, String email, String phoneNo, String password) {
+
+    public UserHelperClass( String username, String email, String phoneNo, String password, String Image_id) {
         this.username = username;
         this.email = email;
         this.phoneNo = phoneNo;
         this.password = password;
+        this.Image_id = Image_id;
     }
     public String getUsername() {
         return username;
@@ -42,5 +42,13 @@ public class UserHelperClass {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getImage_id() {
+        return Image_id;
+    }
+
+    public void setImage_id(String Image_id) {
+        this.Image_id = Image_id;
     }
 }

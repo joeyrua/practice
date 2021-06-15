@@ -9,11 +9,29 @@
     android:padding="20dp"
     tools:context=".UserProfile">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="UserProfile"
+        android:gravity="center"
+        android:fontFamily="@font/akronim"
+        android:textColor="#FF5722"
+        android:textSize="40sp"/>
+
+    <ImageView
+        android:id="@+id/user_img"
+        android:src="@drawable/ic_username"
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/username_profile"
+        app:counterEnabled="true"
+        app:counterMaxLength="15"
+        app:startIconDrawable="@drawable/ic_username"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Username">
 
@@ -32,8 +50,9 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_profile"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="280dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:startIconDrawable="@drawable/ic_email"
             android:hint="Email">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -54,9 +73,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/phoneNo_profile"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:startIconDrawable="@drawable/ic_phone"
         android:hint="PhoneNo">
         <com.google.android.material.textfield.TextInputEditText
             android:inputType="phone"
@@ -67,8 +87,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_profile"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:startIconDrawable="@drawable/ic_password"
+        app:passwordToggleEnabled="true"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:hint="Password">
         <com.google.android.material.textfield.TextInputEditText
@@ -81,13 +103,13 @@
         android:id="@+id/update_profile"
         android:text="update"
         android:onClick="update"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/logout_id"
         android:text="logout"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
 
