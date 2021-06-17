@@ -102,12 +102,29 @@ public class UserProfile extends AppCompatActivity {
                 _EMAIL = snapshot.child(user_id).child("email").getValue(String.class);
                 _PHONENO = snapshot.child(user_id).child("phoneNo").getValue(String.class);
                 _PASSWORD = snapshot.child(user_id).child("password").getValue(String.class);
-                //user_img_id = snapshot.child(user_id).child("image_id").getValue(String.class);
-                download_img();
+                user_img_id = snapshot.child(user_id).child("image_id").getValue(String.class);
+                //download_img();
+                StorageReference imageRef2 = storageReference.child("Images/").child(user_img_id);
+
+                imageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        //Load image from uri using any third party sdk
+                        Glide.with(UserProfile.this)
+                                .load(uri)
+                                .into(user_img);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
                 Username.getEditText().setText(_USERNAME);
                 email.getEditText().setText(_EMAIL);
                 phoneNO.getEditText().setText(_PHONENO);
                 password.getEditText().setText(_PASSWORD);
+
             }
 
             @Override
@@ -116,27 +133,6 @@ public class UserProfile extends AppCompatActivity {
             }
         });
     }
-
-    public void download_img(){
-        StorageReference imageRef2 = storageReference.child("Images/1623492912521.png");
-
-        imageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                //Load image from uri using any third party sdk
-                Glide.with(UserProfile.this)
-                        .load(uri)
-                        .into(user_img);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
-    }
-
-
     public void update(View v) {
         reference.child(user_id).child("username").setValue( Username.getEditText().getText().toString());
         _USERNAME = Username.getEditText().getText().toString();

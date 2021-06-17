@@ -89,7 +89,22 @@ public class Registeration extends AppCompatActivity {
                         reference = FirebaseDatabase.getInstance().getReference();
                         UserHelperClass helperClass = new UserHelperClass(username, email, phoneNo, password, Image_id);
                         reference.child("users").child(userID).setValue(helperClass);
-                        Fileuploader();
+
+                        StorageReference Ref = storageReference.child(Image_id);
+                        // Register observers to listen for when the download is done or if it fails
+                        uploadTask=Ref.putFile(img_uri).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                                Toast.makeText(Registeration.this,"Image Upload successfully",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                         Toast.makeText(Registeration.this,"Tour Account has been created successfully!",Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(Registeration.this, UserProfile.class);
                         startActivity(intent);
