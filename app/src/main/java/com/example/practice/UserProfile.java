@@ -38,7 +38,7 @@ public class UserProfile extends AppCompatActivity {
     DatabaseReference reference;
     StorageReference storageReference;
     FirebaseAuth auth;
-    Button logout_btn;
+    Button logout_btn,img_upload_btn,img_update_btn;
 
 
     @Override
@@ -52,6 +52,8 @@ public class UserProfile extends AppCompatActivity {
         verifyEmail = findViewById(R.id.email_ver);
         update = findViewById(R.id.update_profile);
         logout_btn = findViewById(R.id.logout_id);
+        img_upload_btn = findViewById(R.id.user_upload);
+        img_update_btn = findViewById(R.id.user_update);
         user_img = findViewById(R.id.user_img);
         auth = FirebaseAuth.getInstance();
         user_id = auth.getCurrentUser().getUid();
@@ -103,27 +105,37 @@ public class UserProfile extends AppCompatActivity {
                 _PHONENO = snapshot.child(user_id).child("phoneNo").getValue(String.class);
                 _PASSWORD = snapshot.child(user_id).child("password").getValue(String.class);
                 user_img_id = snapshot.child(user_id).child("image_id").getValue(String.class);
-                //download_img();
-                StorageReference imageRef2 = storageReference.child("Images/").child(user_img_id);
 
-                imageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        //Load image from uri using any third party sdk
-                        Glide.with(UserProfile.this)
-                                .load(uri)
-                                .into(user_img);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                    }
-                });
                 Username.getEditText().setText(_USERNAME);
                 email.getEditText().setText(_EMAIL);
                 phoneNO.getEditText().setText(_PHONENO);
                 password.getEditText().setText(_PASSWORD);
+
+                if(user_img_id == null){
+                    Toast.makeText(UserProfile.this,"No Image",Toast.LENGTH_SHORT).show();
+                    img_upload_btn.setVisibility(View.VISIBLE);
+                }
+                else {
+                    StorageReference imageRef2 = storageReference.child("Images/").child(user_img_id);
+
+                    imageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            //Load image from uri using any third party sdk
+                            Glide.with(UserProfile.this)
+                                    .load(uri)
+                                    .into(user_img);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+                    img_update_btn.setVisibility(View.VISIBLE);
+                }
+
+
 
             }
 
