@@ -4,34 +4,34 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.DataSnapshot;
+
+import java.util.Objects;
+
 
 public class login extends AppCompatActivity {
-    Button login_btn;
+    Button login_btn,to_register_btn,to_forget_password_btn;
     TextInputLayout email, password;
     FirebaseAuth auth;
     DatabaseReference reference;
@@ -41,12 +41,94 @@ public class login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         login_btn = findViewById(R.id.login_go);
+        to_register_btn = findViewById(R.id.to_signup);
+        to_forget_password_btn = findViewById(R.id.forget_password);
         email = findViewById(R.id.email_login);
         password = findViewById(R.id.password);
         login_pro = findViewById(R.id.login_progress);
         auth = FirebaseAuth.getInstance();
-
         reference = FirebaseDatabase.getInstance().getReference("users");
+
+            boolean externalHasGone = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    ==PackageManager.PERMISSION_GRANTED;
+
+            boolean cameraHasGone = checkSelfPermission(Manifest.permission.CAMERA)
+                    ==PackageManager.PERMISSION_GRANTED;
+
+        String[] permissions;
+
+        if(!cameraHasGone && !externalHasGone){//如果存取權限和相機未取得
+            permissions = new String[2];
+            permissions[0] = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+            permissions[1] = Manifest.permission.CAMERA;
+        }
+        else if(!cameraHasGone){//如果相機未取得
+            permissions = new String[1];
+            permissions[0] = Manifest.permission.CAMERA;
+        }
+        else if(!externalHasGone){//如果存取權限未取得
+            permissions = new String[1];
+            permissions[0]= Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        }
+        else{
+            //Toast.makeText(login.this,"相機權限已取得\n儲存權限已取得",Toast.LENGTH_SHORT).show();
+
+            login_btn.setOnClickListener(v -> {
+                if (!vaildateEmail() | !vaildatePassword()) {
+                    login_pro.setVisibility(View.GONE);
+                    return;
+                } else {
+                    login_pro.setVisibility(View.VISIBLE);
+                    auth.signInWithEmailAndPassword(email.getEditText().getText().toString(), password.getEditText().getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                //isUser();
+                                Toast.makeText(login.this, "Login Complete", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent().setClass(getApplicationContext(),UserProfile.class));
+                                finish();
+                            } else if(connect_network()) {
+                                    login_pro.setVisibility(View.GONE);
+                                    return;
+                            }
+                        }
+                    });
+                }
+            });
+
+            to_register_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!connect_network()){
+                        return;
+                    }
+                    else {
+                        Intent intent = new Intent(login.this, Registeration.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            });
+
+            to_forget_password_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!connect_network()){
+                        return;
+                    }
+                    else {
+                        Intent intent = new Intent(login.this, forget_password.class);
+                        startActivity(intent);
+                        finish();
+                    }
+
+                }
+            });
+
+            return;
+        }
+        requestPermissions(permissions,100);
+
 
     }
 
@@ -63,60 +145,16 @@ public class login extends AppCompatActivity {
         AlertDialog.Builder ad = new AlertDialog.Builder(login.this);
         ad.setTitle("離開");
         ad.setMessage("確定要離開嗎?");
-        ad.setPositiveButton("是", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                System.exit(0);
-            }
-        });
-        ad.setNegativeButton("否", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        ad.setPositiveButton("是", (dialog, which) -> System.exit(0));
+        ad.setNegativeButton("否", (dialog, which) -> {
 
-            }
         });
+        ad.setCancelable(false);//禁用返回
         ad.show();
     }
 
-
-
-    public void loginUser(View v) {
-        if (!vaildateEmail() | !vaildatePassword()) {
-            login_pro.setVisibility(View.GONE);
-            return;
-        } else {
-            login_pro.setVisibility(View.VISIBLE);
-            auth.signInWithEmailAndPassword(email.getEditText().getText().toString(), password.getEditText().getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        //isUser();
-                        Toast.makeText(login.this, "Login Complete", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent().setClass(getApplicationContext(),UserProfile.class));
-                        finish();
-                    } else {
-                            Toast.makeText(login.this,"Error!"+task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                            login_pro.setVisibility(View.GONE);
-                    }
-                }
-            });
-        }
-    }
-
-    public void sign_up(View v) {
-        Intent intent = new Intent(login.this, Registeration.class);
-        startActivity(intent);
-        finish();
-    }
-
-    public void forget_password(View v) {
-        Intent intent = new Intent(login.this, forget_password.class);
-        startActivity(intent);
-        finish();
-    }
-
     private  Boolean vaildateEmail() {
-        String val = email.getEditText().getText().toString();
+        String val = Objects.requireNonNull(email.getEditText()).getText().toString();
         if (val.isEmpty()) {
             email.setError("Field cannot be empty");
             return false;
@@ -127,7 +165,7 @@ public class login extends AppCompatActivity {
         }
     }
     private  Boolean vaildatePassword() {
-        String val = password.getEditText().getText().toString();
+        String val = Objects.requireNonNull(password.getEditText()).getText().toString();
 
         if (val.isEmpty()) {
             password.setError("Field cannot be empty");
@@ -140,7 +178,71 @@ public class login extends AppCompatActivity {
     }
 
 
-    private void isUser() {
+    private Boolean connect_network(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            return true;
+        }
+        else{
+            AlertDialog.Builder no_connect = new AlertDialog.Builder(this);
+            no_connect.setMessage("你沒有網路沒連線");
+            no_connect.setPositiveButton("確定", (dialog, which) -> {
+
+            });
+            no_connect.setCancelable(false);
+            no_connect.show();
+            return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull  int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        StringBuilder word = new StringBuilder();
+        switch (permissions.length){
+            case 1:
+                if(permissions[0].equals(Manifest.permission.CAMERA)){
+                    word.append("相機權限");
+                }
+                else{
+                    word.append("儲存權限");
+                }
+                if(grantResults[0] == 0){
+                    word.append("已取得");
+                }
+                else{
+                    word.append("未取得\n");
+                }
+                if(permissions[0].equals(Manifest.permission.CAMERA)){
+                    word.append("儲存權限");
+                }else{
+                    word.append("相機權限");
+                    word.append("已取得");
+                }
+                break;
+            case 2:
+                for(int i =0;i<permissions.length;i++){
+                    if(permissions[i].equals(Manifest.permission.CAMERA)){
+                        word.append("相機權限");
+                    }
+                    else{
+                        word.append("儲存權限");
+                    }
+                    if(grantResults[i]==0){
+                        word.append("已取得");
+                    }
+                    else{
+                        word.append("未取得");
+                    }
+                    if(i<permissions.length-1) word.append("\n");
+                }
+                break;
+        }
+        Toast.makeText(login.this,word.toString(),Toast.LENGTH_SHORT).show();
+    }
+
+    /*private void isUser() {
         final String userEnteredEmail = email.getEditText().getText().toString().trim();
         final String userEnteredPassword = password.getEditText().getText().toString().trim();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
@@ -187,7 +289,7 @@ public class login extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
 
     public void onStart() {
         super.onStart();

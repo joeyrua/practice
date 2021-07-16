@@ -56,7 +56,6 @@
 
         <Button
             android:id="@+id/forget_password"
-            android:onClick="forget_password"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:background="#00000000"
@@ -71,7 +70,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="GO"
-            android:onClick="loginUser"
             android:background="#000"
             android:textColor="#fff"
             android:layout_marginTop="5dp"
@@ -80,7 +78,6 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="sign_up"
             android:id="@+id/to_signup"
             android:background="#00000000"
             android:text="New User? SIGN UP"

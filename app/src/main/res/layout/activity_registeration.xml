@@ -18,22 +18,39 @@
         android:fontFamily="@font/akronim"
         android:textColor="#FF5722"
         android:textSize="40sp"/>
+
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <ImageView
-            android:src="@drawable/ic_username"
             android:id="@+id/image_view"
-            android:layout_width="100dp"
-            android:layout_height="100dp"/>
-        <Button
-            android:id="@+id/sele_pic"
-            android:text="select picture"
-            android:layout_gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_width="175dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_username" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/sele_pic"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="select picture" />
+
+            <Button
+                android:id="@+id/capture_btn"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="capture" />
+        </LinearLayout>
+
     </LinearLayout>
 
 
@@ -66,6 +83,7 @@
             android:layout_height="wrap_content"
             app:startIconDrawable="@drawable/ic_email"
             android:hint="Email"
+
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
