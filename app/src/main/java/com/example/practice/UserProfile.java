@@ -3,14 +3,18 @@ package com.example.practice;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -36,6 +40,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class UserProfile extends AppCompatActivity {
     TextInputLayout Username,email,phoneNO, password;
     Button update,verifyEmail,logout_btn,img_update_btn;
@@ -43,9 +50,9 @@ public class UserProfile extends AppCompatActivity {
     String _USERNAME,_EMAIL,_PHONENO, _PASSWORD,user_img_id,user_id;
     DatabaseReference reference;
     StorageReference storageReference;
-    StorageTask storageTask;
+    static final int Gallery_IMAGE_CODE = 105;
     FirebaseAuth auth;
-    Uri img_uri_2;
+    Uri contentUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +91,12 @@ public class UserProfile extends AppCompatActivity {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(!isUsernameChange() | !isPasswordChange() | !isEmailChange() | !isPhoneChange() ){
+                if(!isUsernameChange() | !isPasswordChange() | !isEmailChange() | !isPhoneChange() | !isImgChange() ){
                     return;
                 }
-
+                else{
+                    Toast.makeText(UserProfile.this,"No Change",Toast.LENGTH_SHORT).show();
+                }
             }
 
         });
@@ -116,7 +124,8 @@ public class UserProfile extends AppCompatActivity {
         img_update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File_Choose();
+                Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(gallery, Gallery_IMAGE_CODE);
             }
         });
 
@@ -129,19 +138,12 @@ public class UserProfile extends AppCompatActivity {
                 _EMAIL = snapshot.child(user_id).child("email").getValue(String.class);
                 _PHONENO = snapshot.child(user_id).child("phoneNo").getValue(String.class);
                 _PASSWORD = snapshot.child(user_id).child("password").getValue(String.class);
-
                 user_img_id = snapshot.child(user_id).child("image_id").getValue(String.class);
-
                 Username.getEditText().setText(_USERNAME);
                 email.getEditText().setText(_EMAIL);
                 phoneNO.getEditText().setText(_PHONENO);
                 password.getEditText().setText(_PASSWORD);
 
-
-
-                /*if(user_img_id == null){
-                    Toast.makeText(UserProfile.this,"No Image",Toast.LENGTH_SHORT).show();
-                }*/
                     StorageReference imageRef2 = storageReference.child(user_img_id);
                     imageRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
@@ -171,29 +173,21 @@ public class UserProfile extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {//顯示圖片
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==1 && resultCode==RESULT_OK && data != null && data.getData()!=null){
-            img_uri_2 = data.getData();
-            user_img.setImageURI(img_uri_2);
+        if(requestCode==Gallery_IMAGE_CODE && resultCode==RESULT_OK && data != null && data.getData()!=null){
+            contentUri = data.getData();
+            user_img.setImageURI(contentUri);
         }
     }
 
-
-
-    private void File_Choose(){//選擇圖片
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,1);
+    private String getExtension(Uri uri){//選擇圖片
+        ContentResolver cr = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(cr.getType(uri));
     }
 
 
 
-    public boolean onKeyDown(int KeyCode, KeyEvent event) {
-        if (KeyCode == KeyEvent.KEYCODE_BACK) {
-            return false;
-        }
-        return super.onKeyDown(KeyCode, event);
-    }
+
 
     private boolean isUsernameChange() {
         if (!_USERNAME.equals(Username.getEditText().getText().toString())) {
@@ -258,6 +252,66 @@ public class UserProfile extends AppCompatActivity {
             return false;
         }
     }
+
+    private boolean isImgChange(){
+        if(contentUri!=null){
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "JPEG_"+timeStamp+"."+getExtension(contentUri);
+            update.setEnabled(false);
+            storageReference.child(imageFileName).putFile(contentUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(@NonNull  UploadTask.TaskSnapshot taskSnapshot) {
+                                Toast.makeText(UserProfile.this,"Image Upload Successfully",Toast.LENGTH_SHORT).show();
+                                reference.child(user_id).child("image_id").setValue(imageFileName);
+                                user_img_id=imageFileName;
+                                /*FirebaseAuth.getInstance().signOut();
+                                startActivity(new Intent(UserProfile.this,login.class));*/
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull  Exception e) {
+                        Toast.makeText(UserProfile.this,"Image Upload Failed",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            return true;
+        }
+        else{
+            Toast.makeText(UserProfile.this," No Image Upload ",Toast.LENGTH_SHORT).show();
+            update.setEnabled(true);
+            return false;
+        }
+    }
+
+    private void ConfirmExit(){
+        AlertDialog.Builder ad = new AlertDialog.Builder(UserProfile.this)
+                .setMessage("是否要離開???")
+                .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        System.exit(0);
+                    }
+                }).setNegativeButton("否", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        ad.setCancelable(false);
+        ad.show();
+    }
+
+
+    public boolean onKeyDown(int KeyCode, KeyEvent event) {
+        if (KeyCode == KeyEvent.KEYCODE_BACK) {
+            ConfirmExit();
+            return true;
+        }
+        return super.onKeyDown(KeyCode, event);
+    }
+
+
+
 
 
 

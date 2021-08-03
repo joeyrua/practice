@@ -93,8 +93,6 @@ public class Registeration extends AppCompatActivity {
                 String password = regPassword.getEditText().getText().toString();
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 String imageFileName = "JPEG_"+timeStamp+"."+getExtension(contentUri);
-
-
                 firebaseAuth.createUserWithEmailAndPassword(email,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
@@ -113,6 +111,7 @@ public class Registeration extends AppCompatActivity {
                             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    register.setEnabled(false);
                                     Intent intent = new Intent(Registeration.this, UserProfile.class);
                                     startActivity(intent);
                                     finish();
@@ -150,7 +149,6 @@ public class Registeration extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==Gallery_IMAGE_CODE && resultCode==RESULT_OK && data != null && data.getData()!=null){
             contentUri = data.getData();
-
             imageView.setImageURI(contentUri);
             //UploadImageToFirebase(imageFileName,contentUri);
         }
@@ -298,19 +296,5 @@ public class Registeration extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    public void progress(){
-        ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        dialog.setTitle("跑進度中");
-        dialog.setMax(120);
-        dialog.show();
-        new Thread(()->{
-            for (int i = 0; i <120 ; i++) {
-                /**更新進度*/
-                dialog.setProgress(i);
-                SystemClock.sleep(50);
-            }
-            dialog.dismiss();
-        }).start();
-    }
+
 }

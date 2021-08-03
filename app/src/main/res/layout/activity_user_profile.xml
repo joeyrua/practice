@@ -35,7 +35,7 @@
         <Button
                 android:id="@+id/user_update"
                 android:text="Image Update/Upload"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
