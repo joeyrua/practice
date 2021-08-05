@@ -18,6 +18,16 @@
         android:textColor="#FF5722"
         android:textSize="40sp"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="請先確認網路是否有連線"
+        android:id="@+id/network_test"
+        android:visibility="gone"
+        android:gravity="left"
+        android:textColor="#FF5811"
+        android:textSize="20sp"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"

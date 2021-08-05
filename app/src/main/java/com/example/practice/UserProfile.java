@@ -12,6 +12,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -45,6 +47,7 @@ import java.util.Date;
 
 public class UserProfile extends AppCompatActivity {
     TextInputLayout Username,email,phoneNO, password;
+    TextView network_check;
     Button update,verifyEmail,logout_btn,img_update_btn;
     ImageView user_img;
     String _USERNAME,_EMAIL,_PHONENO, _PASSWORD,user_img_id,user_id;
@@ -67,13 +70,39 @@ public class UserProfile extends AppCompatActivity {
         logout_btn = findViewById(R.id.logout_id);
         img_update_btn = findViewById(R.id.user_update);
         user_img = findViewById(R.id.user_img);
+        network_check = findViewById(R.id.network_test);
         auth = FirebaseAuth.getInstance();
         user_id = auth.getCurrentUser().getUid();
         reference = FirebaseDatabase.getInstance().getReference("users");
 
         storageReference = FirebaseStorage.getInstance().getReference("Images/");
 
-        showAllUserData();
+        if(!isNetworkConnect()){
+            Username.setVisibility(View.GONE);
+            email.setVisibility(View.GONE);
+            phoneNO.setVisibility(View.GONE);
+            password.setVisibility(View.GONE);
+            update.setVisibility(View.GONE);
+            logout_btn.setVisibility(View.GONE);
+            img_update_btn.setVisibility(View.GONE);
+            user_img.setVisibility(View.GONE);
+            network_check.setVisibility(View.VISIBLE);
+            return;
+        }
+        else{
+            Username.setVisibility(View.VISIBLE);
+            email.setVisibility(View.VISIBLE);
+            phoneNO.setVisibility(View.VISIBLE);
+            password.setVisibility(View.VISIBLE);
+            update.setVisibility(View.VISIBLE);
+            logout_btn.setVisibility(View.VISIBLE);
+            img_update_btn.setVisibility(View.VISIBLE);
+            user_img.setVisibility(View.VISIBLE);
+            network_check.setVisibility(View.GONE);
+            showAllUserData();
+        }
+
+
 
         if (!auth.getCurrentUser().isEmailVerified()) {
             verifyEmail.setVisibility(View.VISIBLE);
@@ -265,6 +294,7 @@ public class UserProfile extends AppCompatActivity {
                                 Toast.makeText(UserProfile.this,"Image Upload Successfully",Toast.LENGTH_SHORT).show();
                                 reference.child(user_id).child("image_id").setValue(imageFileName);
                                 user_img_id=imageFileName;
+
                                 /*FirebaseAuth.getInstance().signOut();
                                 startActivity(new Intent(UserProfile.this,login.class));*/
                             }
@@ -280,6 +310,23 @@ public class UserProfile extends AppCompatActivity {
             Toast.makeText(UserProfile.this," No Image Upload ",Toast.LENGTH_SHORT).show();
             update.setEnabled(true);
             return false;
+        }
+    }
+
+    private Boolean isNetworkConnect(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()){
+            return true;
+        }
+        else{
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setMessage("請確定網路是否有連線");
+            alertDialog.setPositiveButton("確定",null);
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+            return false;
+
         }
     }
 
